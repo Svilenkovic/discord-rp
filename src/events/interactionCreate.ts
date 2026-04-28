@@ -73,6 +73,13 @@ export async function execute(interaction: Interaction) {
       return;
     }
 
+    // Ticket category buttons: tcat:<catId>
+    if (cid.startsWith('tcat:')) {
+      const { openTicketModal } = await import('../lib/tickets.js');
+      await openTicketModal(interaction, cid.split(':')[1]);
+      return;
+    }
+
     // Apply buttons: apply:start (otvara modal)
     if (cid === 'apply:start') {
       const { ModalBuilder, TextInputBuilder, TextInputStyle } = await import('discord.js');
@@ -106,6 +113,11 @@ export async function execute(interaction: Interaction) {
     if (interaction.customId === 'apply:submit') {
       const { handleApplicationSubmit } = await import('../lib/applications.js');
       await handleApplicationSubmit(interaction);
+      return;
+    }
+    if (interaction.customId.startsWith('tnew:')) {
+      const { createTicketFromModal } = await import('../lib/tickets.js');
+      await createTicketFromModal(interaction, interaction.customId.split(':')[1]);
       return;
     }
   }

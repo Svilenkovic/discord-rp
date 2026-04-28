@@ -50,17 +50,15 @@ c.once(Events.ClientReady, async () => {
     await purge(dobrodosli);
     const banner = new EmbedBuilder()
       .setColor(0x5865F2)
-      .setTitle('░▒▓█  KG BALKAN RP  █▓▒░')
+      .setTitle('KG BALKAN RP')
       .setDescription([
-        '## Dobrodošli na **najbalkanskiji** FiveM RP server',
+        '## Dobrodošli na FiveM RP server.',
         '',
-        '> Realističan roleplay • Ekonomija • Frakcije • Heists • Custom mape',
-        '',
-        '**Pre nego što počneš:**',
-        '`①` Pročitaj <#' + findId(/pravila-servera|ᴘʀᴀᴠɪʟᴀ.*ꜱᴇʀᴠᴇʀᴀ/i) + '>',
-        '`②` Verifikuj se u <#' + (verif?.id ?? '0') + '>',
-        '`③` Izaberi uloge u <#' + (izborUloga?.id ?? '0') + '>',
-        '`④` Predaj prijavu u <#' + findId(/bela-lista-prijava|ʙᴇʟᴀ.*ʟɪꜱᴛᴀ.*ᴘʀɪᴊᴀᴠᴀ/i) + '>',
+        '**Pre nego što počneš, prati 4 koraka:**',
+        '`①` Pročitaj pravila — <#' + findId(/pravila-servera|ᴘʀᴀᴠɪʟᴀ.*ꜱᴇʀᴠᴇʀᴀ/i) + '>',
+        '`②` Verifikuj se — <#' + (verif?.id ?? '0') + '>',
+        '`③` Izaberi uloge — <#' + (izborUloga?.id ?? '0') + '>',
+        '`④` Predaj white lista prijavu — <#' + findId(/bela-lista-prijava|ʙᴇʟᴀ.*ʟɪꜱᴛᴀ.*ᴘʀɪᴊᴀᴠᴀ/i) + '>',
       ].join('\n'))
       .setThumbnail(guild.iconURL({ size: 256 }) ?? null)
       .setImage(guild.bannerURL({ size: 1024 }) ?? null)
@@ -84,19 +82,19 @@ c.once(Events.ClientReady, async () => {
       .setColor(0x57F287)
       .setTitle('🚪  Kako da uđeš na server')
       .setDescription([
-        '### 1️⃣  Verifikacija',
+        '### 1.  Verifikacija',
         'Idi u <#' + (verif?.id ?? '0') + '> i klikni **Verifikuj se**.',
         '',
-        '### 2️⃣  Bela lista (Whitelist)',
-        'Popuni prijavu u <#' + findId(/ʙᴇʟᴀ.*ʟɪꜱᴛᴀ.*ᴘʀɪᴊᴀᴠᴀ/i) + '>. Tim **Bela Lista** odgovara u 24h.',
+        '### 2.  White lista',
+        'Popuni prijavu u <#' + findId(/ʙᴇʟᴀ.*ʟɪꜱᴛᴀ.*ᴘʀɪᴊᴀᴠᴀ/i) + '>. Tim **White lista** odgovara u 24h.',
         '',
-        '### 3️⃣  Connect',
-        'Server IP nadjes u <#' + findId(/server-ip|ꜱᴇʀᴠᴇʀ-ɪᴘ/i) + '>. F8 → `connect <ip>`.',
+        '### 3.  Connect',
+        'Server IP nađeš u <#' + findId(/server-ip|ꜱᴇʀᴠᴇʀ-ɪᴘ/i) + '>. U FiveM-u F8 → `connect <ip>`.',
         '',
-        '### 4️⃣  Prvi koraci',
-        '`/help` u igri • `/character` za RP karakter • `/job` za posao',
+        '### 4.  Prvi koraci u igri',
+        '`/help` — lista IC komandi  •  `/character` — tvoj lik  •  `/job` — posao',
       ].join('\n'))
-      .setFooter({ text: 'Trebaš pomoć? Tim Podrške.' });
+      .setFooter({ text: 'Treba ti pomoć? Otvori ticket u »🆘 ᴘᴏᴍᴏᴄ« sekciji.' });
     await kakoUlaz.send({ embeds: [e] });
     console.log('OK #kako-da-udjes');
   }
@@ -109,12 +107,11 @@ c.once(Events.ClientReady, async () => {
       .setColor(0xFEE75C)
       .setTitle('✅  Verifikacija')
       .setDescription([
-        'Klikom na dugme prihvataš:',
-        '> • Pravila servera <#' + findId(/ᴘʀᴀᴠɪʟᴀ-ꜱᴇʀᴠᴇʀᴀ/i) + '>',
-        '> • RP pravila <#' + findId(/ᴘʀᴀᴠɪʟᴀ-ʀᴘ/i) + '>',
-        '> • Da nećeš praviti šum, spam i ne-RP situacije',
+        'Klikom na dugme potvrđuješ da si pročitao i prihvataš:',
+        '> • Pravila servera — <#' + findId(/ᴘʀᴀᴠɪʟᴀ-ꜱᴇʀᴠᴇʀᴀ/i) + '>',
+        '> • RP pravila — <#' + findId(/ᴘʀᴀᴠɪʟᴀ-ʀᴘ/i) + '>',
         '',
-        'Posle klika dobijaš rolu **Verifikovani Igrač** i pristup ostalim kanalima.',
+        'Posle verifikacije dobijaš ulogu **Verifikovan Igrač** i pristup ostalim kanalima.',
       ].join('\n'));
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder().setCustomId('verify:' + verifiedRoleId).setLabel('Verifikuj se').setEmoji('✅').setStyle(ButtonStyle.Success),
