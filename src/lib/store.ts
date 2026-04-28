@@ -119,6 +119,26 @@ db.exec(`
     PRIMARY KEY (referred_user, guild_id)
   );
   CREATE INDEX IF NOT EXISTS idx_promoter_refs_promoter ON promoter_refs(promoter_id, confirmed);
+
+  -- Birthdays
+  CREATE TABLE IF NOT EXISTS birthdays (
+    user_id    TEXT NOT NULL,
+    guild_id   TEXT NOT NULL,
+    day        INTEGER NOT NULL,
+    month      INTEGER NOT NULL,
+    year       INTEGER,
+    last_celebrated INTEGER DEFAULT 0,
+    PRIMARY KEY (user_id, guild_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_bday_md ON birthdays(month, day);
+
+  -- Server status sticky message (po guildu)
+  CREATE TABLE IF NOT EXISTS status_messages (
+    guild_id   TEXT PRIMARY KEY,
+    channel_id TEXT NOT NULL,
+    message_id TEXT NOT NULL,
+    updated_at INTEGER DEFAULT (unixepoch())
+  );
 `);
 
 export const stmts = {

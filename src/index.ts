@@ -51,3 +51,9 @@ for (const file of readdirSync(eventsDir).filter(f => f.endsWith('.ts') || f.end
 }
 
 await client.login(process.env.DISCORD_TOKEN);
+
+// Daily birthday check (svako jutro u 9:00)
+import('./lib/birthdays.js').then(m => m.scheduleDailyBirthdayCheck(client));
+
+// Server status sticky embed (auto-refresh svaki minut)
+import('./lib/serverStatus.js').then(m => m.scheduleStatusRefresh(client));
