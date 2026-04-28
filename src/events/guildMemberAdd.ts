@@ -27,6 +27,11 @@ export async function execute(member: GuildMember) {
     } catch {}
   }
 
+  // Auto-role: dodeli "Neverifikovan" rolu odmah (default pristup pre verifikacije)
+  try {
+    await member.roles.add('1496653432847732787').catch(() => {});
+  } catch {}
+
   // Welcome DM novom članu
   try {
     const e = new EmbedBuilder()

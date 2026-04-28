@@ -57,3 +57,6 @@ import('./lib/birthdays.js').then(m => m.scheduleDailyBirthdayCheck(client));
 
 // Server status sticky embed (auto-refresh svaki minut)
 import('./lib/serverStatus.js').then(m => m.scheduleStatusRefresh(client));
+
+// Reminder tick (svakih 30s proveri da li ima DM podsetnika za slanje)
+import('./lib/reminders.js').then(m => m.scheduleReminderTick(client));

@@ -139,6 +139,27 @@ db.exec(`
     message_id TEXT NOT NULL,
     updated_at INTEGER DEFAULT (unixepoch())
   );
+
+  -- Warnings (akumulirano)
+  CREATE TABLE IF NOT EXISTS warnings (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    guild_id   TEXT NOT NULL,
+    user_id    TEXT NOT NULL,
+    actor_id   TEXT NOT NULL,
+    reason     TEXT NOT NULL,
+    created_at INTEGER DEFAULT (unixepoch())
+  );
+  CREATE INDEX IF NOT EXISTS idx_warnings_user ON warnings(guild_id, user_id, created_at);
+
+  -- Reminders (DM "podseti me")
+  CREATE TABLE IF NOT EXISTS reminders (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    TEXT NOT NULL,
+    text       TEXT NOT NULL,
+    fire_at    INTEGER NOT NULL,
+    created_at INTEGER DEFAULT (unixepoch())
+  );
+  CREATE INDEX IF NOT EXISTS idx_reminders_fire ON reminders(fire_at);
 `);
 
 export const stmts = {
