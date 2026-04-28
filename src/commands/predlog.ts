@@ -1,6 +1,7 @@
 import {
-  SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, MessageFlags, ChannelType, TextChannel,
+  SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, ChannelType, TextChannel,
 } from 'discord.js';
+import { kgEmbed, STYLE } from '../lib/embedStyle.js';
 
 export const data = new SlashCommandBuilder()
   .setName('predlog')
@@ -23,18 +24,19 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     return;
   }
 
-  const e = new EmbedBuilder()
-    .setColor(0xfee75c)
-    .setTitle(`💡  ${naslov}`)
-    .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL() })
-    .setDescription(opis)
-    .setFooter({ text: 'Glasaj 👍 / 👎' })
-    .setTimestamp();
+  const e = kgEmbed({
+    title: naslov,
+    banner: true,
+    color: STYLE.brand,
+    description: opis,
+    author: { name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL() },
+    footer: 'Glasaj 👍 / 👎 ispod',
+    guild: interaction.guild,
+  });
 
   const sent = await predloziCh.send({ embeds: [e] });
   await sent.react('👍');
   await sent.react('👎');
-  // Thread za diskusiju
   await sent.startThread({ name: `Diskusija: ${naslov.slice(0, 80)}`, autoArchiveDuration: 1440 }).catch(() => {});
 
   await interaction.reply({ content: `✅ Predlog poslat u <#${predloziCh.id}>`, flags: MessageFlags.Ephemeral });

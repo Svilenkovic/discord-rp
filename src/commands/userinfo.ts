@@ -1,7 +1,6 @@
-import {
-  SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, time, TimestampStyles,
-} from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
 import { stmts } from '../lib/store.js';
+import { kgEmbed, STYLE, field } from '../lib/embedStyle.js';
 
 export const data = new SlashCommandBuilder()
   .setName('userinfo')
@@ -27,21 +26,26 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   const recentLogs = stmts.recentModLogs.all(interaction.guildId!, user.id, 5) as any[];
   const modHistory = recentLogs.length === 0
     ? '_čisto_'
-    : recentLogs.map(l => `\`${l.action}\` <t:${l.created_at}:R> — ${l.reason ?? ''}`).join('\n');
+    : recentLogs.map(l => `\`${l.action}\` <t:${l.created_at}:R> — ${(l.reason ?? '').slice(0, 80)}`).join('\n');
 
-  const e = new EmbedBuilder()
-    .setColor(member?.displayHexColor === '#000000' ? 0x5865f2 : (member?.displayColor ?? 0x5865f2))
-    .setAuthor({ name: user.tag, iconURL: user.displayAvatarURL({ size: 256 }) })
-    .setThumbnail(user.displayAvatarURL({ size: 512 }))
-    .addFields(
-      { name: 'ID', value: `\`${user.id}\``, inline: true },
-      { name: 'Bot', value: user.bot ? 'Da' : 'Ne', inline: true },
-      { name: '​', value: '​', inline: true },
-      { name: 'Nalog otvoren', value: created, inline: true },
-      { name: 'Pridružio se', value: joined, inline: true },
-      { name: '​', value: '​', inline: true },
-      { name: 'Uloge', value: roles, inline: false },
-      { name: 'Mod-istorija (poslednjih 5)', value: modHistory, inline: false },
-    );
+  const color = (member?.displayColor && member.displayColor !== 0) ? member.displayColor : STYLE.primary;
+
+  const e = kgEmbed({
+    title: user.tag,
+    color,
+    author: { name: 'Informacije o korisniku' },
+    thumbnail: user.displayAvatarURL({ size: 512 }),
+    fields: [
+      field('ID', `\`${user.id}\``, true),
+      field('Bot', user.bot ? 'Da' : 'Ne', true),
+      field('​', '​', true),
+      field('Nalog otvoren', created, true),
+      field('Pridružio se', joined, true),
+      field('​', '​', true),
+      field('Uloge', roles, false),
+      field('Mod-istorija (5)', modHistory, false),
+    ],
+    guild: interaction.guild,
+  });
   await interaction.reply({ embeds: [e] });
 }

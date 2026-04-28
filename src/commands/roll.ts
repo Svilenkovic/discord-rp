@@ -1,5 +1,6 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } from 'discord.js';
 import { parseDice, rollDice } from '../lib/dice.js';
+import { kgEmbed, STYLE, field } from '../lib/embedStyle.js';
 
 export const data = new SlashCommandBuilder()
   .setName('roll')
@@ -17,33 +18,31 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
   const parsed = parseDice(expr);
   if (!parsed) {
-    await interaction.reply({ content: `Nevalidan izraz: \`${expr}\`. Probaj npr. \`2d20+3\`.`, ephemeral: true });
+    await interaction.reply({ content: `Nevalidan izraz: \`${expr}\`. Probaj npr. \`2d20+3\`.`, flags: MessageFlags.Ephemeral });
     return;
   }
-
   const { count, sides, modifier } = parsed;
   if (count < 1 || count > 100 || sides < 2 || sides > 1000) {
-    await interaction.reply({ content: 'Limit: 1-100 kockica, strane 2-1000.', ephemeral: true });
+    await interaction.reply({ content: 'Limit: 1-100 kockica, strane 2-1000.', flags: MessageFlags.Ephemeral });
     return;
   }
 
   const rolls = rollDice(count, sides);
   const sum = rolls.reduce((a, b) => a + b, 0);
   const total = sum + modifier;
-
   const modStr = modifier === 0 ? '' : modifier > 0 ? ` + ${modifier}` : ` − ${Math.abs(modifier)}`;
   const rollsStr = rolls.length <= 20 ? rolls.join(', ') : `${rolls.slice(0, 20).join(', ')}, ...`;
 
-  const embed = new EmbedBuilder()
-    .setColor(0x5865f2)
-    .setTitle(`🎲 ${expr.toLowerCase()}${reason ? ` — ${reason}` : ''}`)
-    .setDescription(`**${total}**`)
-    .addFields(
-      { name: 'Kockice', value: `[${rollsStr}]`, inline: false },
-      { name: 'Suma', value: `${sum}${modStr} = **${total}**`, inline: false },
-    )
-    .setFooter({ text: `${interaction.user.username}` })
-    .setTimestamp();
-
-  await interaction.reply({ embeds: [embed] });
+  const e = kgEmbed({
+    title: `🎲  ${expr.toLowerCase()}${reason ? ` — ${reason}` : ''}`,
+    color: STYLE.primary,
+    author: { name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL() },
+    description: `# ${total}`,
+    fields: [
+      field('Kockice', `[${rollsStr}]`),
+      field('Suma', `${sum}${modStr} = **${total}**`),
+    ],
+    guild: interaction.guild,
+  });
+  await interaction.reply({ embeds: [e] });
 }

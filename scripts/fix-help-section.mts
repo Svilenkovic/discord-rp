@@ -80,22 +80,23 @@ c.once(Events.ClientReady, async () => {
     if (msgs.size < 100) break;
   }
 
-  const embed = new EmbedBuilder()
-    .setColor(0x5865f2)
-    .setTitle('🎫  Otvori ticket')
-    .setDescription([
-      'Izaberi kategoriju koja najbolje opisuje tvoj problem ili pitanje.',
-      'Otvoriće se privatan kanal sa odgovarajućim timom.',
-      '',
-      '**Kategorije:**',
-      '🆘 **Pomoć** — opšte pitanje ili hitna situacija',
-      '⚖️ **Žalba** — žalba na drugog igrača ili admina',
-      '🐛 **Bug / Greška** — prijavi grešku u igri ili na serveru',
-      '💎 **Donacija** — pitanja oko donacija i paketa',
-      '📝 **White lista** — pitanja oko prijave (pre nego što predaš)',
-      '🤝 **Saradnja / Predlog** — predlog, saradnja, ostalo',
-    ].join('\n'))
-    .setFooter({ text: 'Ne otvaraj duplikate — admin tim će ti odgovoriti.' });
+  const { kgEmbed, STYLE } = await import('../src/lib/embedStyle.js');
+  const embed = kgEmbed({
+    title: 'Otvori ticket',
+    banner: true,
+    color: STYLE.primary,
+    description: 'Izaberi kategoriju klikom na dugme. Otvoriće se privatan kanal sa odgovarajućim timom.',
+    fields: [
+      { name: '🆘 Pomoć',         value: '> Opšte pitanje ili hitna situacija', inline: true },
+      { name: '⚖️ Žalba',         value: '> Žalba na drugog igrača ili admina', inline: true },
+      { name: '🐛 Bug',           value: '> Prijavi grešku u igri/serveru',     inline: true },
+      { name: '💎 Donacija',      value: '> Pitanja oko donacija i paketa',      inline: true },
+      { name: '📝 White lista',   value: '> Pitanja oko prijave',                inline: true },
+      { name: '🤝 Saradnja',      value: '> Predlog, saradnja, ostalo',          inline: true },
+    ],
+    footer: 'Ne otvaraj duplikate — admin tim će ti odgovoriti',
+    guild,
+  });
 
   const row1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder().setCustomId('tcat:pomoc').setLabel('Pomoć').setEmoji('🆘').setStyle(ButtonStyle.Primary),

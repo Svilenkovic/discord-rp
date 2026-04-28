@@ -34,21 +34,25 @@ c.once(Events.ClientReady, async () => {
 
   if (donInfo) {
     await purge(donInfo);
-    const e = new EmbedBuilder()
-      .setColor(0xfee75c)
-      .setTitle('💎  Donacije — KG Balkan RP')
-      .setDescription([
+    const { kgEmbed, STYLE } = await import('../src/lib/embedStyle.js');
+    const e = kgEmbed({
+      title: 'Donacije — KG Balkan RP',
+      banner: true,
+      color: STYLE.brand,
+      description: [
         'Server živi od donacija — pokrivamo licence, hosting, mape, custom skripte.',
-        '**Hvala što doprinosiš!** ❤️',
         '',
-        '**Komanda:** `/donate` — pregled svih paketa',
-        '**Lista paketa:** ispod',
-        '**Pravila donacija:** <#1496653487164100798>',
-        '**Načini uplate:** <#1496653485465403482>',
-        '**Dokaz uplate:** <#1496653495590457375>',
+        '> **Komanda:** `/donate` — pregled svih paketa',
+        '> **Lista paketa:** ispod (pregled po kategoriji)',
+        '> **Pravila donacija:** <#1496653487164100798>',
+        '> **Načini uplate:** <#1496653485465403482>',
+        '> **Dokaz uplate:** <#1496653495590457375>',
         '',
-        '_Donacija nije obavezna i ne daje IC prednosti — samo OOC pogodnosti i kozmetiku._',
-      ].join('\n'));
+        '_Donacija nije obavezna. Ne daje IC prednost — samo OOC pogodnosti i kozmetiku._',
+      ].join('\n'),
+      footer: 'Hvala što doprinosiš ❤️',
+      guild,
+    });
     await donInfo.send({ embeds: [e] });
     console.log('OK #donacije-info');
   }
@@ -56,24 +60,47 @@ c.once(Events.ClientReady, async () => {
   if (paketi) {
     await purge(paketi);
     const grouped = packagesByCategory();
+    const { kgEmbed, STYLE } = await import('../src/lib/embedStyle.js');
+    const colors: Record<string, number> = {
+      'Karakter':         STYLE.primary,
+      'Priority Queue':   STYLE.warning,
+      'Organizacija':     STYLE.purple,
+      'Org. nadogradnja': STYLE.cyan,
+      'Vozila':           STYLE.info,
+      'Helikopteri':      STYLE.danger,
+      'Imovina':          STYLE.orange,
+      'Ostalo':           0x95a5a6,
+    };
+    const icons: Record<string, string> = {
+      'Karakter': '🧍',
+      'Priority Queue': '⚡',
+      'Organizacija': '🏴',
+      'Org. nadogradnja': '🛠️',
+      'Vozila': '🚗',
+      'Helikopteri': '🚁',
+      'Imovina': '🏠',
+      'Ostalo': '🎁',
+    };
     for (const [cat, pkgs] of Object.entries(grouped)) {
-      const colors: Record<string, number> = {
-        'VIP': 0xf5c542, 'Vozila': 0x3498db, 'Telefon': 0x9b59b6,
-        'Biznis': 0x27ae60, 'Organizacije': 0x8e44ad,
-        'Imovina': 0xe67e22, 'Ostalo': 0x95a5a6,
-      };
-      const e = new EmbedBuilder()
-        .setColor(colors[cat] ?? 0x5865f2)
-        .setTitle(`${({VIP:'⭐',Vozila:'🚗',Telefon:'📱',Biznis:'🏢',Organizacije:'🏴',Imovina:'🏠',Ostalo:'🎁'}[cat] ?? '💎')}  ${cat}`)
-        .setDescription(pkgs.map(p => {
+      const e = kgEmbed({
+        title: `${icons[cat] ?? '💎'}  ${cat}`,
+        banner: true,
+        color: colors[cat] ?? STYLE.primary,
+        description: pkgs.map(p => {
           const perks = p.perks.map(x => `> • ${x}`).join('\n');
           return `**${p.name}** — \`${p.price}\`\n${perks}`;
-        }).join('\n\n'));
+        }).join('\n\n'),
+        guild,
+      });
       await paketi.send({ embeds: [e] });
     }
-    const cta = new EmbedBuilder()
-      .setColor(0xfee75c)
-      .setDescription('Spreman za donaciju? Pokreni `/donate` ili otvori `/ticket razlog:donacija`. Tim donacija <@&1496653425352376330> će ti odgovoriti.');
+    const cta = kgEmbed({
+      title: 'Spreman za donaciju?',
+      color: STYLE.brand,
+      description: 'Pokreni `/donate` za interaktivni pregled, ili otvori `/ticket` sa kategorijom **Donacija**.\n\nTim donacija <@&1496653425352376330> će ti odgovoriti u roku od 24h.',
+      footer: 'Hvala što doprinosiš ❤️',
+      guild,
+    });
     await paketi.send({ embeds: [cta] });
     console.log('OK #paketi-donacija');
   }
@@ -87,25 +114,29 @@ c.once(Events.ClientReady, async () => {
 
   // Posebno: postavi /promoter info u dobrodosli kao add-on poruku
   if (oglasi) {
-    const e = new EmbedBuilder()
-      .setColor(0x57f287)
-      .setTitle('🎟️  Promoter sistem — pozovi prijatelje, dobij nagrade!')
-      .setDescription([
-        '**Kako funkcioniše:**',
-        '`①` Pokreni `/promoter moj-kod` — dobiješ jedinstven kod',
-        '`②` Podeli kod prijateljima',
-        '`③` Kad se prijave, oni rade `/promoter claim kod:<TVOJKOD>`',
-        '`④` Tebi se kreditira poziv',
-        '',
-        '**Nagrade (mesečno):**',
-        '🥇 1. mesto: VIP Gold (2000 RSD vrednost)',
-        '🥈 2. mesto: VIP Silver (1000 RSD)',
-        '🥉 3. mesto: VIP Bronze (500 RSD)',
-        '🏅 4-10. mesto: Custom tablica',
-        '',
-        '**Lestvica:** `/promoter lestvica`',
-        '**Tvoji pozivi:** `/promoter moji-pozivi`',
-      ].join('\n'));
+    const { kgEmbed, STYLE, steps } = await import('../src/lib/embedStyle.js');
+    const e = kgEmbed({
+      title: 'Promoter sistem — pozovi prijatelje, dobij nagrade',
+      banner: true,
+      color: STYLE.success,
+      description: 'Dovedi prijatelje na server i kvalifikuj se za mesečne nagrade.',
+      fields: [
+        { name: 'Kako funkcioniše', value: steps([
+          ['Generiši kod', '`/promoter moj-kod` — dobiješ jedinstven kod'],
+          ['Podeli', 'Pošalji kod prijateljima'],
+          ['Claim', 'Kad se prijave: `/promoter claim kod:<TVOJKOD>`'],
+          ['Nagrada', 'Tebi se kreditira poziv'],
+        ]) },
+        { name: 'Nagrade (mesečno)', value: [
+          '🥇 1. mesto — Priority Queue 50 (50€ vrednost)',
+          '🥈 2. mesto — Priority Queue 30',
+          '🥉 3. mesto — Priority Queue 10',
+          '🏅 4-10. mesto — Custom tablica',
+        ].join('\n') },
+        { name: 'Komande', value: '`/promoter lestvica` • `/promoter moji-pozivi`', inline: false },
+      ],
+      guild,
+    });
     await oglasi.send({ embeds: [e] }).catch(() => {});
     console.log('OK promoter info');
   }

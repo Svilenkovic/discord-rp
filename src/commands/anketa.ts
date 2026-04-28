@@ -1,6 +1,5 @@
-import {
-  SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, MessageFlags,
-} from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } from 'discord.js';
+import { kgEmbed, STYLE } from '../lib/embedStyle.js';
 
 const EMOJI = ['🇦', '🇧', '🇨', '🇩', '🇪', '🇫', '🇬', '🇭'];
 
@@ -20,16 +19,16 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     return;
   }
 
-  const e = new EmbedBuilder()
-    .setColor(0x5865f2)
-    .setTitle(`📊  ${question}`)
-    .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL() })
-    .setDescription(options.map((o, i) => `${EMOJI[i]} **${o}**`).join('\n'))
-    .setFooter({ text: 'Glasaj reakcijom ispod' })
-    .setTimestamp();
+  const e = kgEmbed({
+    title: question,
+    banner: true,
+    color: STYLE.primary,
+    description: options.map((o, i) => `${EMOJI[i]} **${o}**`).join('\n'),
+    author: { name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL() },
+    footer: 'Glasaj reakcijom ispod',
+    guild: interaction.guild,
+  });
 
   const reply = await interaction.reply({ embeds: [e], fetchReply: true });
-  for (let i = 0; i < options.length; i++) {
-    await reply.react(EMOJI[i]).catch(() => {});
-  }
+  for (let i = 0; i < options.length; i++) await reply.react(EMOJI[i]).catch(() => {});
 }

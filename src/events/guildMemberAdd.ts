@@ -34,20 +34,21 @@ export async function execute(member: GuildMember) {
 
   // Welcome DM novom članu
   try {
-    const e = new EmbedBuilder()
-      .setColor(0x5865f2)
-      .setTitle('Dobrodošao na KG Balkan RP!')
-      .setDescription([
-        'Hvala što si nam se pridružio. Da bi mogao da igraš, prati 4 koraka:',
-        '',
-        '`①` Pročitaj **Pravila servera** u <#1496653451604529425>',
-        '`②` Verifikuj se u <#1496653445665390724>',
-        '`③` Izaberi svoje uloge u <#1496653448265863320>',
-        '`④` Predaj prijavu za belu listu — komanda `/apply` ili u <#1496653473507184680>',
-        '',
-        'Vidimo se u igri! 🎮',
-      ].join('\n'))
-      .setThumbnail(member.guild.iconURL({ size: 256 }) ?? null);
+    const { kgEmbed, STYLE, steps } = await import('../lib/embedStyle.js');
+    const e = kgEmbed({
+      title: 'Dobrodošao na KG Balkan RP',
+      banner: true,
+      color: STYLE.primary,
+      description: 'Hvala što si nam se pridružio. Da bi počeo da igraš, prati 4 koraka:',
+      fields: [{ name: '​', value: steps([
+        ['Pravila servera', '<#1496653451604529425>'],
+        ['Verifikacija', '<#1496653445665390724>'],
+        ['Izbor uloga', '<#1496653448265863320>'],
+        ['White lista prijava', '`/apply` ili <#1496653473507184680>'],
+      ]) }],
+      footer: 'Vidimo se u igri',
+      guild: member.guild,
+    });
     await member.send({ embeds: [e] });
   } catch {}
 

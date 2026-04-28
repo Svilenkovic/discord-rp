@@ -126,19 +126,22 @@ export async function execute(interaction: Interaction) {
   if (interaction.isStringSelectMenu()) {
     if (interaction.customId === 'donate:select') {
       const { findPackage } = await import('../lib/donations.js');
+      const { kgEmbed, STYLE, bullets, field } = await import('../lib/embedStyle.js');
       const id = interaction.values[0];
       const pkg = findPackage(id);
       if (!pkg) {
         await interaction.reply({ content: 'Paket nije pronađen.', flags: MessageFlags.Ephemeral });
         return;
       }
-      const { EmbedBuilder } = await import('discord.js');
-      const e = new EmbedBuilder()
-        .setColor(0xfee75c)
-        .setTitle(`💎  ${pkg.name}`)
-        .setDescription(`**Cena:** \`${pkg.price}\`\n**Kategorija:** ${pkg.category}`)
-        .addFields({ name: 'Šta dobijaš', value: pkg.perks.map(p => `• ${p}`).join('\n') })
-        .setFooter({ text: 'Za uplatu: /ticket razlog:donacija ili kontaktiraj Tim donacija' });
+      const e = kgEmbed({
+        title: pkg.name,
+        banner: true,
+        color: STYLE.brand,
+        description: `> **Kategorija:** ${pkg.category}\n> **Cena:** \`${pkg.price}\``,
+        fields: [field('Šta dobijaš', bullets(pkg.perks))],
+        footer: 'Otvori `/ticket` sa kategorijom Donacija ili kontaktiraj Tim donacija',
+        guild: interaction.guild,
+      });
       await interaction.reply({ embeds: [e], flags: MessageFlags.Ephemeral });
       return;
     }
