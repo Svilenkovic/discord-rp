@@ -19,6 +19,23 @@ db.exec(`
     created_at INTEGER DEFAULT (unixepoch()),
     PRIMARY KEY (user_id, guild_id)
   );
+
+  CREATE TABLE IF NOT EXISTS scenes (
+    guild_id    TEXT PRIMARY KEY,
+    location    TEXT NOT NULL,
+    description TEXT,
+    started_by  TEXT NOT NULL,
+    started_at  INTEGER DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS scene_log (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    guild_id   TEXT NOT NULL,
+    user_id    TEXT NOT NULL,
+    text       TEXT NOT NULL,
+    created_at INTEGER DEFAULT (unixepoch())
+  );
+  CREATE INDEX IF NOT EXISTS idx_scene_log_guild_time ON scene_log(guild_id, created_at);
 `);
 
 export const stmts = {
@@ -27,6 +44,21 @@ export const stmts = {
   ),
   getChar: db.prepare(`SELECT * FROM characters WHERE user_id = ? AND guild_id = ?`),
   deleteChar: db.prepare(`DELETE FROM characters WHERE user_id = ? AND guild_id = ?`),
+
+  startScene: db.prepare(
+    `INSERT OR REPLACE INTO scenes (guild_id, location, description, started_by, started_at)
+     VALUES (?, ?, ?, ?, unixepoch())`,
+  ),
+  getScene: db.prepare(`SELECT * FROM scenes WHERE guild_id = ?`),
+  endScene: db.prepare(`DELETE FROM scenes WHERE guild_id = ?`),
+  endSceneLog: db.prepare(`DELETE FROM scene_log WHERE guild_id = ?`),
+  addLog: db.prepare(
+    `INSERT INTO scene_log (guild_id, user_id, text) VALUES (?, ?, ?)`,
+  ),
+  recentLog: db.prepare(
+    `SELECT user_id, text, created_at FROM scene_log
+     WHERE guild_id = ? ORDER BY created_at DESC LIMIT ?`,
+  ),
 };
 
 export { db };
