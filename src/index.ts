@@ -12,7 +12,13 @@ if (!process.env.DISCORD_TOKEN) {
 }
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,    // privileged — enable u Developer Portal
+    GatewayIntentBits.GuildMembers,      // privileged — enable u Developer Portal
+    GatewayIntentBits.GuildModeration,
+  ],
 });
 
 // Custom field for command registry (stored on client for handlers)

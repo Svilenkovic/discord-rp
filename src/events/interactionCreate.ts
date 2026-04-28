@@ -1,4 +1,4 @@
-import { Events, Interaction, MessageFlags, GuildMemberRoleManager } from 'discord.js';
+import { Events, Interaction, MessageFlags, GuildMemberRoleManager, ActionRowBuilder } from 'discord.js';
 
 export const name = Events.InteractionCreate;
 
@@ -34,19 +34,19 @@ export async function execute(interaction: Interaction) {
       const roleId = cid.split(':')[1];
       const role = await interaction.guild.roles.fetch(roleId).catch(() => null);
       if (!role) {
-        await interaction.reply({ content: 'Rola više ne postoji.', flags: MessageFlags.Ephemeral });
+        await interaction.reply({ content: 'Uloga više ne postoji.', flags: MessageFlags.Ephemeral });
         return;
       }
       try {
         if (roles.cache.has(roleId)) {
           await roles.remove(role);
-          await interaction.reply({ content: `➖ Uklonjena rola **${role.name}**.`, flags: MessageFlags.Ephemeral });
+          await interaction.reply({ content: `➖ Uklonjena ti je uloga **${role.name}**.`, flags: MessageFlags.Ephemeral });
         } else {
           await roles.add(role);
-          await interaction.reply({ content: `➕ Dodata rola **${role.name}**.`, flags: MessageFlags.Ephemeral });
+          await interaction.reply({ content: `➕ Dodeljena ti je uloga **${role.name}**.`, flags: MessageFlags.Ephemeral });
         }
       } catch {
-        await interaction.reply({ content: 'Bot nema permisiju da menja ovu rolu.', flags: MessageFlags.Ephemeral });
+        await interaction.reply({ content: 'Bot nema dozvolu da menja ovu ulogu (njegova uloga mora biti iznad).', flags: MessageFlags.Ephemeral });
       }
       return;
     }
@@ -55,9 +55,79 @@ export async function execute(interaction: Interaction) {
       const map: Record<string, string> = {
         rules: 'Pročitaj <#1496653451604529425> (Pravila servera) i <#1496653452946702397> (RP pravila).',
         verify: 'Idi u <#1496653445665390724> i klikni **Verifikuj se**.',
-        roles: 'Idi u <#1496653448265863320> i izaberi rolu klikom na dugme.',
+        roles: 'Idi u <#1496653448265863320> i izaberi ulogu klikom na dugme.',
       };
       await interaction.reply({ content: map[cid.split(':')[1]] ?? 'Nepoznato', flags: MessageFlags.Ephemeral });
+      return;
+    }
+
+    // Ticket buttons: ticket:close
+    if (cid === 'ticket:close') {
+      const ch = interaction.channel;
+      if (ch && 'name' in ch && ch.name?.startsWith('ticket-')) {
+        await interaction.reply({ content: '🔒 Tiket će biti zatvoren za 5 sekundi…' });
+        setTimeout(() => { (ch as any).delete().catch(() => {}); }, 5000);
+      } else {
+        await interaction.reply({ content: 'Ovaj kanal nije tiket.', flags: MessageFlags.Ephemeral });
+      }
+      return;
+    }
+
+    // Apply buttons: apply:start (otvara modal)
+    if (cid === 'apply:start') {
+      const { ModalBuilder, TextInputBuilder, TextInputStyle } = await import('discord.js');
+      const modal = new ModalBuilder().setCustomId('apply:submit').setTitle('Prijava za belu listu');
+      const ime = new TextInputBuilder().setCustomId('ime').setLabel('Ime i prezime (IRL)').setStyle(TextInputStyle.Short).setRequired(true).setMaxLength(60);
+      const godine = new TextInputBuilder().setCustomId('godine').setLabel('Godine').setStyle(TextInputStyle.Short).setRequired(true).setMaxLength(3);
+      const iskustvo = new TextInputBuilder().setCustomId('iskustvo').setLabel('RP iskustvo (kratko)').setStyle(TextInputStyle.Paragraph).setRequired(true).setMaxLength(500);
+      const lik = new TextInputBuilder().setCustomId('lik').setLabel('Ideja za lika (ime, pozadina)').setStyle(TextInputStyle.Paragraph).setRequired(true).setMaxLength(800);
+      const razlog = new TextInputBuilder().setCustomId('razlog').setLabel('Zašto baš naš server?').setStyle(TextInputStyle.Paragraph).setRequired(true).setMaxLength(400);
+      modal.addComponents(
+        new ActionRowBuilder<TextInputBuilder>().addComponents(ime),
+        new ActionRowBuilder<TextInputBuilder>().addComponents(godine),
+        new ActionRowBuilder<TextInputBuilder>().addComponents(iskustvo),
+        new ActionRowBuilder<TextInputBuilder>().addComponents(lik),
+        new ActionRowBuilder<TextInputBuilder>().addComponents(razlog),
+      );
+      await interaction.showModal(modal);
+      return;
+    }
+
+    // Application action buttons (admin)
+    if (cid.startsWith('apply:approve:') || cid.startsWith('apply:reject:')) {
+      const { handleApplicationDecision } = await import('../lib/applications.js');
+      await handleApplicationDecision(interaction, cid);
+      return;
+    }
+  }
+
+  // Modal submit
+  if (interaction.isModalSubmit()) {
+    if (interaction.customId === 'apply:submit') {
+      const { handleApplicationSubmit } = await import('../lib/applications.js');
+      await handleApplicationSubmit(interaction);
+      return;
+    }
+  }
+
+  // String select (donate paketi)
+  if (interaction.isStringSelectMenu()) {
+    if (interaction.customId === 'donate:select') {
+      const { findPackage } = await import('../lib/donations.js');
+      const id = interaction.values[0];
+      const pkg = findPackage(id);
+      if (!pkg) {
+        await interaction.reply({ content: 'Paket nije pronađen.', flags: MessageFlags.Ephemeral });
+        return;
+      }
+      const { EmbedBuilder } = await import('discord.js');
+      const e = new EmbedBuilder()
+        .setColor(0xfee75c)
+        .setTitle(`💎  ${pkg.name}`)
+        .setDescription(`**Cena:** \`${pkg.price}\`\n**Kategorija:** ${pkg.category}`)
+        .addFields({ name: 'Šta dobijaš', value: pkg.perks.map(p => `• ${p}`).join('\n') })
+        .setFooter({ text: 'Za uplatu: /ticket razlog:donacija ili kontaktiraj Tim donacija' });
+      await interaction.reply({ embeds: [e], flags: MessageFlags.Ephemeral });
       return;
     }
   }
