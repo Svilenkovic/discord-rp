@@ -8,14 +8,15 @@ import { kgEmbed, STYLE, steps } from '../src/lib/embedStyle.js';
 const c = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 interface PrijavaDef {
-  id: string;       // ticket category id (mora postojati u tickets.ts)
+  id: string;
   channelName: string;
   emoji: string;
   title: string;
-  short: string;    // kratak opis za kanal listing
-  uslovi: string[]; // bullet listu
-  pitanja: Array<[string, string]>; // step lista
-  reviewer: string; // za footer
+  short: string;
+  uslovi: string[];
+  pitanja: Array<[string, string]>;
+  reviewer: string;
+  nagrade: string[]; // šta kandidat zaradjuje (kredit za donatorske stvari)
 }
 
 const PRIJAVE: PrijavaDef[] = [
@@ -27,7 +28,6 @@ const PRIJAVE: PrijavaDef[] = [
     short: 'Postani Probni Moderator → Moderator → Stariji Moderator → Administrator',
     uslovi: [
       'Minimum 18 godina',
-      'Verifikovan na serveru i belom listom odobren',
       'Aktivan u igri minimum 30h u poslednjih mesec dana',
       'Bez aktivnih warninga ili kazni u poslednjih 3 meseca',
       'Mikrofon obavezan',
@@ -42,28 +42,11 @@ const PRIJAVE: PrijavaDef[] = [
       ['Kako rešavaš konflikt',   'Primer: 2 igrača se prepiru, jedan pokazuje na drugog'],
     ],
     reviewer: 'Vlasnici',
-  },
-  {
-    id: 'p-wladmin',
-    channelName: '〔📥〕〢ᴡʟ-ᴀᴅᴍɪɴ-ᴘʀɪᴊᴀᴠᴀ',
-    emoji: '📥',
-    title: 'White lista admin prijava',
-    short: 'Pregled white lista prijava — odobravanje/odbijanje novih igrača',
-    uslovi: [
-      'Minimum 16 godina',
-      'Verifikovan, aktivan u igri 20h+ mesečno',
-      'Dobre komunikacione veštine',
-      'Razumevanje RP osnova i serverskih pravila',
-      'Strpljen, ume da odgovori bez agresije',
+    nagrade: [
+      '**5€ kredit** za svaku odrađenu smenu od 10h+ na poziciji',
+      'Bonus **+10€** ako rešiš 50+ tiketa u mesecu',
+      'Sav kredit se troši za donatorske stvari (vozila, tablice, izgled, organizacije)',
     ],
-    pitanja: [
-      ['Ime i prezime',           'Tvoje pravo ime'],
-      ['Godine',                  '16+'],
-      ['Iskustvo sa moderacijom', 'Discord/forumi/RP serveri'],
-      ['Koliko prijava bi pregledao dnevno', 'Realna procena'],
-      ['Test scenario',           'Kandidat napiše prijavu sa malim greškama u IC/OOC. Šta uradiš?'],
-    ],
-    reviewer: 'Glavni administratori',
   },
   {
     id: 'p-promoter',
@@ -85,6 +68,14 @@ const PRIJAVE: PrijavaDef[] = [
       ['Plan promocije',          'Kako misliš da promovišeš naš server'],
     ],
     reviewer: 'Tim podrške',
+    nagrade: [
+      '**Tier sistem po dovedenim igračima** (sa 10h+ in-game vremena):',
+      '> • 1-9 igrača — **2€** po dovedenom',
+      '> • 10-24 igrača — **3€** po svakom narednom (+25€ kumulativno na pragu)',
+      '> • 25-49 igrača — **4€** po svakom narednom',
+      '> • 50+ igrača — **5€** po svakom narednom',
+      '_Igrač upiše tvoj kod pri ulasku (`/promoter claim`). Kad pređe 10h, kredit se automatski dodeljuje._',
+    ],
   },
   {
     id: 'p-strimer',
@@ -106,6 +97,12 @@ const PRIJAVE: PrijavaDef[] = [
       ['Da li si već strimovao naš server', 'Linkovi clip-ova ako ih imaš'],
     ],
     reviewer: 'Media tim',
+    nagrade: [
+      '**10€ kredit** po stream-u od 5h+ sa servera',
+      '**+15€ bonus** ako stream prosečno ima 20+ gledalaca',
+      'Pristup **#strimeri-live** kanalu — automatski ping kad si live',
+      'Custom Strimer rola sa specijalnom bojom imena',
+    ],
   },
   {
     id: 'p-beta',
@@ -127,52 +124,66 @@ const PRIJAVE: PrijavaDef[] = [
       ['Primer bug raporta',      'Opiši kako bi prijavio bug — šta je važno?'],
     ],
     reviewer: 'Developeri',
+    nagrade: [
+      '**2€ kredit** po validnom bug raportu',
+      '**+5€** za bugove visokog prioriteta (game-breaking, exploit)',
+      'Pristup beta serveru pre javne verzije',
+      'Ime u credits-u updata u kojem si pomogao',
+    ],
   },
   {
     id: 'p-pd',
     channelName: '〔🚔〕〢ᴘᴅ-ɴᴀᴄᴇʟɴɪᴋ-ᴘʀɪᴊᴀᴠᴀ',
     emoji: '🚔',
     title: 'PD načelnik prijava',
-    short: 'Vodi celu policijsku frakciju — najodgovornija pozicija u dr. službama',
+    short: 'Vodiš celu policijsku frakciju — moraš već imati ekipu spremnu za rad',
     uslovi: [
-      'Minimum 20 godina',
-      'Iskustvo u PD frakciji minimum 3 meseca (na nekom serveru)',
-      'Bez aktivnih warninga',
-      'Mikrofon obavezan',
-      'Aktivan 25h+ mesečno',
+      'Imaš već formiranu ekipu (minimum 5 ljudi koji su spremni da budu u PD-u)',
+      'Lista članova sa Discord tagovima ide u prijavu',
+      'Spreman si da preuzmeš odgovornost za rad cele frakcije',
     ],
     pitanja: [
-      ['Ime i prezime + Discord', 'Pravo ime + tag'],
-      ['Godine + iskustvo u PD',  'Koliko meseci, koje rang'],
-      ['Vizija PD frakcije',      'Kako bi vodio i unapredio'],
-      ['Plan obuke novih',        'Kako bi obučavao novajlije'],
+      ['Discord + IC ime',          'Tag + ime karaktera'],
+      ['Tvoja ekipa',               'Discord tagovi članova ekipe (min 5) i njihove planirane rang'],
+      ['Vizija PD frakcije',        'Kako vodiš i unapređuješ'],
+      ['Plan obuke novih',          'Kako obučavaš novajlije'],
       ['Saradnja sa drugim frakcijama', 'EMS, mafija — kako rešavaš tenzije'],
-      ['Kazneni sistem',          'Kako daješ disciplinske mere'],
+      ['Kazneni sistem',            'Kako daješ disciplinske mere unutar frakcije'],
     ],
     reviewer: 'Vlasnici',
+    nagrade: [
+      '**5€ kredit** za 10h+ odrađene smene mesečno',
+      '**+20€ bonus** za uspešno odrađen mesec (bez disciplinskih problema u frakciji)',
+      'Custom uniforma + voznii park PD-a',
+      'Lider PC u stanici (admin panel za frakciju)',
+    ],
   },
   {
     id: 'p-bolnica',
     channelName: '〔🏥〕〢ʙᴏʟɴɪᴄᴀ-ᴅɪʀᴇᴋᴛᴏʀ-ᴘʀɪᴊᴀᴠᴀ',
     emoji: '🏥',
     title: 'Bolnica direktor prijava',
-    short: 'Direktor EMS frakcije — vodi medicinski tim i bolnicu',
+    short: 'Direktor EMS frakcije — moraš imati ekipu spremnu da pokrije smene',
     uslovi: [
-      'Minimum 19 godina',
-      'Iskustvo u EMS frakciji min 2 meseca',
-      'Bez kazni',
-      'Mikrofon obavezan',
-      'Aktivan 20h+ mesečno',
+      'Imaš već formiranu ekipu (minimum 5 medicinara/medicinarki)',
+      'Lista članova sa Discord tagovima ide u prijavu',
+      'Spreman si da preuzmeš odgovornost za rad bolnice',
     ],
     pitanja: [
-      ['Ime i prezime + Discord', 'Pravo ime + tag'],
-      ['Godine + EMS iskustvo',   'Koliko, gde, koja rang'],
-      ['Kako bi vodio bolnicu',   'Plan rada i protokoli'],
-      ['Plan obuke novih',        'Kako se rasporedjuju novi medicinari'],
-      ['Saradnja sa PD',          'Kako rešavaš situacije sa kriminalom'],
-      ['Etika',                   'Lečiš li i kriminalce na licu mesta?'],
+      ['Discord + IC ime',          'Tag + ime karaktera'],
+      ['Tvoja ekipa',               'Discord tagovi članova ekipe (min 5) i njihove uloge'],
+      ['Kako vodiš bolnicu',        'Plan rada i protokoli'],
+      ['Plan obuke novih',          'Kako rasporedjuješ nove medicinare'],
+      ['Saradnja sa PD',            'Kako rešavaš situacije sa kriminalom na licu mesta'],
+      ['Etika',                     'Lečiš li i kriminalce?'],
     ],
     reviewer: 'Vlasnici',
+    nagrade: [
+      '**5€ kredit** za 10h+ odrađene smene mesečno',
+      '**+20€ bonus** za uspešno odrađen mesec',
+      'Custom medicinska oprema + helikopter za hitnu',
+      'Lider PC u bolnici (admin panel za frakciju)',
+    ],
   },
   {
     id: 'p-event',
@@ -193,29 +204,39 @@ const PRIJAVE: PrijavaDef[] = [
       ['Koliko event-a mesečno',  'Realna procena vremena'],
     ],
     reviewer: 'Event tim',
+    nagrade: [
+      '**15€ kredit** za organizovan event sa 10+ učesnika',
+      '**+5€** za svaki naredni učesnik preko 20',
+      '**+50€ bonus** za ceo event-arc (3+ event-a u nizu sa istim narativnim lukom)',
+      'Pristup event resursima (custom mapa, NPC trigger-i, blocked zones)',
+    ],
   },
   {
     id: 'p-mafija',
     channelName: '〔🏴〕〢ᴍᴀꜰɪᴊᴀ-ʟɪᴅᴇʀ-ᴘʀɪᴊᴀᴠᴀ',
     emoji: '🏴',
     title: 'Mafija / Kartel lider prijava',
-    short: 'Liderstvo nad organizacijom (pakovanje 30€ ili više iz donacija)',
+    short: 'Liderstvo nad organizacijom — moraš već imati formiranu ekipu i ideju',
     uslovi: [
-      'Minimum 18 godina',
-      'Verifikovan i aktivan 30h+ mesečno',
-      'Bez kazni',
-      'Mikrofon obavezan',
-      'Donacija paket "Velika organizacija" (30€) ili dogovor sa Vlasnicima',
+      'Imaš već formiranu ekipu (minimum 5 članova)',
+      'Lista članova sa Discord tagovima ide u prijavu',
+      'Donacija paket organizacije ili dogovor sa Vlasnicima',
     ],
     pitanja: [
-      ['Discord + IC ime',          'Tag + ime karaktera'],
-      ['Predloženo ime org',        'Ime mafije/kartela'],
-      ['Tip biznisa',               'Drogerija / oružje / pranje novca / kombinacija'],
-      ['Koje članove imaš već',     'Lista discord tag-ova'],
+      ['Discord + IC ime',           'Tag + ime karaktera'],
+      ['Predloženo ime org',         'Ime mafije/kartela'],
+      ['Tip biznisa',                'Drogerija / oružje / pranje novca / kombinacija'],
+      ['Tvoja ekipa',                'Discord tagovi članova (min 5) i njihove uloge u org'],
       ['Vizija konfliktnih situacija', 'Kako rešavaš war sa drugom organizacijom'],
-      ['IC-OOC granica',            'Kako sprečavaš da OOC drama pređe u IC'],
+      ['IC-OOC granica',             'Kako sprečavaš da OOC drama pređe u IC'],
     ],
     reviewer: 'Suvlasnici',
+    nagrade: [
+      'Custom mapa baze + custom outfiti + voznik park (uključeno u paket)',
+      'Privatna radio frekvencija + sef + garaža',
+      '**+5€ kredit mesečno** za vlasnika ako ekipa aktivno igra (10h+ po članu)',
+      'Mogućnost teritorijalnog rata sa drugom org (event)',
+    ],
   },
 ];
 
@@ -273,15 +294,19 @@ c.once(Events.ClientReady, async () => {
 
     await purge(ch);
 
+    const fields = [
+      { name: 'Uslovi', value: p.uslovi.map(s => `> • ${s}`).join('\n') },
+      { name: 'Pitanja u formi', value: steps(p.pitanja) },
+    ];
+    if (p.nagrade.length > 0) {
+      fields.push({ name: '🎁 Nagrade (kredit za donatorske stvari)', value: p.nagrade.map(s => s.startsWith('>') ? s : `> ${s}`).join('\n') });
+    }
     const e = kgEmbed({
       title: p.title,
       banner: true,
       color: STYLE.brand,
       description: p.short + '\n\nKlikni dugme **Predaj prijavu** ispod — otvoriće se forma sa pitanjima.',
-      fields: [
-        { name: 'Uslovi', value: p.uslovi.map(s => `> • ${s}`).join('\n') },
-        { name: 'Pitanja u formi', value: steps(p.pitanja) },
-      ],
+      fields,
       footer: `Pregled: ${p.reviewer} • Odgovor DM-om u 24-72h`,
       guild,
     });

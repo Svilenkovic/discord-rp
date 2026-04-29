@@ -31,11 +31,18 @@ c.once(Events.ClientReady, async () => {
     if (ch) await ch.delete('zamena za voice').catch(() => {});
   }
 
-  // Kreiram 3 VOICE kanala
+  // Kreiram 3 VOICE kanala (pravi format odmah)
   for (let i = 1; i <= 3; i++) {
-    const name = `🆘 Pomoć ${i}`;
-    const exists = [...channels.values()].find(ch => ch?.name === name && ch.type === ChannelType.GuildVoice);
-    if (exists) continue;
+    const name = `〔🆘〕〢ᴘᴏᴍᴏᴄ-${i}`;
+    const altName = `🆘 Pomoć ${i}`;
+    const exists = [...channels.values()].find(ch => ch && ch.type === ChannelType.GuildVoice && (ch.name === name || ch.name === altName));
+    if (exists) {
+      // ako je u starom formatu, rename
+      if (exists.name === altName) {
+        try { await exists.setName(name); console.log(`rename voice → ${name}`); } catch {}
+      }
+      continue;
+    }
     await guild.channels.create({
       name,
       type: ChannelType.GuildVoice,
@@ -85,28 +92,30 @@ c.once(Events.ClientReady, async () => {
     title: 'Otvori ticket',
     banner: true,
     color: STYLE.primary,
-    description: 'Izaberi kategoriju klikom na dugme. Otvoriće se privatan kanal sa odgovarajućim timom.',
+    description: 'Sve prijave i pitanja idu kroz tikete — izaberi kategoriju klikom na dugme.\nOtvoriće se privatan kanal sa odgovarajućim timom.',
     fields: [
-      { name: '🆘 Pomoć',         value: '> Opšte pitanje ili hitna situacija', inline: true },
-      { name: '⚖️ Žalba',         value: '> Žalba na drugog igrača ili admina', inline: true },
-      { name: '🐛 Bug',           value: '> Prijavi grešku u igri/serveru',     inline: true },
-      { name: '💎 Donacija',      value: '> Pitanja oko donacija i paketa',      inline: true },
-      { name: '📝 White lista',   value: '> Pitanja oko prijave',                inline: true },
-      { name: '🤝 Saradnja',      value: '> Predlog, saradnja, ostalo',          inline: true },
+      { name: '🆘 Pomoć',          value: '> Opšte pitanje ili hitna situacija',       inline: true },
+      { name: '🚨 Prijava igrača', value: '> Igrač krši pravila / RP-break / cheat',   inline: true },
+      { name: '🔓 Žalba na ban',   value: '> Misliš da si banovan nepravedno',         inline: true },
+      { name: '⚖️ Žalba na admina', value: '> Admin nije pravilno postupio',           inline: true },
+      { name: '🐛 Prijava buga',   value: '> Greška u igri / na serveru',              inline: true },
+      { name: '💎 Donacija',       value: '> Pitanja oko donacija i paketa',           inline: true },
+      { name: '🤝 Saradnja',       value: '> Predlog, saradnja, ostalo',               inline: true },
     ],
-    footer: 'Ne otvaraj duplikate — admin tim će ti odgovoriti',
+    footer: 'Ne otvaraj duplikate — admin tim će ti odgovoriti u 24h',
     guild,
   });
 
   const row1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder().setCustomId('tcat:pomoc').setLabel('Pomoć').setEmoji('🆘').setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId('tcat:zalba').setLabel('Žalba').setEmoji('⚖️').setStyle(ButtonStyle.Danger),
-    new ButtonBuilder().setCustomId('tcat:bug').setLabel('Bug').setEmoji('🐛').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('tcat:prijava-igraca').setLabel('Prijava igrača').setEmoji('🚨').setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId('tcat:zalba-ban').setLabel('Žalba na ban').setEmoji('🔓').setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId('tcat:zalba').setLabel('Žalba na admina').setEmoji('⚖️').setStyle(ButtonStyle.Danger),
   );
   const row2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder().setCustomId('tcat:bug').setLabel('Bug').setEmoji('🐛').setStyle(ButtonStyle.Secondary),
     new ButtonBuilder().setCustomId('tcat:donacija').setLabel('Donacija').setEmoji('💎').setStyle(ButtonStyle.Success),
-    new ButtonBuilder().setCustomId('tcat:wl').setLabel('White lista').setEmoji('📝').setStyle(ButtonStyle.Secondary),
-    new ButtonBuilder().setCustomId('tcat:ostalo').setLabel('Saradnja / Predlog').setEmoji('🤝').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('tcat:ostalo').setLabel('Saradnja').setEmoji('🤝').setStyle(ButtonStyle.Secondary),
   );
 
   await ticketCh.send({ embeds: [embed], components: [row1, row2] });

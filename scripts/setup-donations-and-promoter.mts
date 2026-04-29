@@ -116,25 +116,28 @@ c.once(Events.ClientReady, async () => {
   if (oglasi) {
     const { kgEmbed, STYLE, steps } = await import('../src/lib/embedStyle.js');
     const e = kgEmbed({
-      title: 'Promoter sistem — pozovi prijatelje, dobij nagrade',
+      title: 'Promoter sistem — kredit po dovedenom igraču',
       banner: true,
       color: STYLE.success,
-      description: 'Dovedi prijatelje na server i kvalifikuj se za mesečne nagrade.',
+      description: 'Dovedi prijatelje na server i automatski zaradjuj kredit za donatorske stvari.',
       fields: [
         { name: 'Kako funkcioniše', value: steps([
           ['Generiši kod', '`/promoter moj-kod` — dobiješ jedinstven kod'],
-          ['Podeli', 'Pošalji kod prijateljima'],
-          ['Claim', 'Kad se prijave: `/promoter claim kod:<TVOJKOD>`'],
-          ['Nagrada', 'Tebi se kreditira poziv'],
+          ['Podeli', 'Pošalji kod prijateljima pre nego što se prijave'],
+          ['Claim', 'Pri ulasku na server / u Discord: `/promoter claim kod:<TVOJKOD>`'],
+          ['Čekaj 10h', 'Kad dovedeni igrač dostigne **10h igre na serveru**, kredit se automatski dodeljuje'],
         ]) },
-        { name: 'Nagrade (mesečno)', value: [
-          '🥇 1. mesto — Priority Queue 50 (50€ vrednost)',
-          '🥈 2. mesto — Priority Queue 30',
-          '🥉 3. mesto — Priority Queue 10',
-          '🏅 4-10. mesto — Custom tablica',
+        { name: '💰 Tier sistem nagrada', value: [
+          '> **1-9 dovedenih** — `2€` po svakom',
+          '> **10-24 dovedenih** — `3€` po svakom narednom',
+          '> **25-49 dovedenih** — `4€` po svakom narednom',
+          '> **50+ dovedenih** — `5€` po svakom narednom',
+          '',
+          '_Krediti se kumuliraju i koriste za donatorske pakete (vozila, tablice, telefon brojevi, organizacije, izgled lika)._',
         ].join('\n') },
-        { name: 'Komande', value: '`/promoter lestvica` • `/promoter moji-pozivi`', inline: false },
+        { name: 'Komande', value: '`/promoter moj-kod` • `/promoter lestvica` • `/promoter moji-pozivi`', inline: false },
       ],
+      footer: 'Igrač mora imati 10h+ in-game vremena da bi se brojao',
       guild,
     });
     await oglasi.send({ embeds: [e] }).catch(() => {});

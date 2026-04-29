@@ -24,24 +24,24 @@ const MEDIA_TEAM    = '1496653424127639683';
 const EVENT_TEAM    = '1496653422554910844';
 
 export const TICKET_CATEGORIES: Record<string, TicketCategory> = {
-  // Opšti tiketi
-  pomoc:    { id: 'pomoc',    label: 'Pomoć',          emoji: '🆘', color: 0x5865f2, reviewerRoleId: SUPPORT },
-  zalba:    { id: 'zalba',    label: 'Žalba',          emoji: '⚖️', color: 0xed4245, reviewerRoleId: ADMIN },
-  bug:      { id: 'bug',      label: 'Bug',            emoji: '🐛', color: 0xfee75c, reviewerRoleId: DEV_ROLE },
-  donacija: { id: 'donacija', label: 'Donacija',       emoji: '💎', color: 0xfee75c, reviewerRoleId: DONATION_TEAM },
-  wl:       { id: 'wl',       label: 'White lista',    emoji: '📝', color: 0x57f287, reviewerRoleId: WL_TEAM },
-  ostalo:   { id: 'ostalo',   label: 'Saradnja',       emoji: '🤝', color: 0x95a5a6, reviewerRoleId: SUPPORT },
+  // Opšti tiketi (sve ide kroz tikete — žalbe, bug-ovi, prijave igrača, donacije)
+  pomoc:        { id: 'pomoc',        label: 'Pomoć',                emoji: '🆘', color: 0x5865f2, reviewerRoleId: SUPPORT },
+  zalba:        { id: 'zalba',        label: 'Žalba na admina',      emoji: '⚖️', color: 0xed4245, reviewerRoleId: VLASNIK },
+  'zalba-ban':  { id: 'zalba-ban',    label: 'Žalba na ban',         emoji: '🔓', color: 0xed4245, reviewerRoleId: ADMIN },
+  'prijava-igraca': { id: 'prijava-igraca', label: 'Prijava igrača', emoji: '🚨', color: 0xc0392b, reviewerRoleId: SUPPORT },
+  bug:          { id: 'bug',          label: 'Prijava buga',         emoji: '🐛', color: 0xfee75c, reviewerRoleId: DEV_ROLE },
+  donacija:     { id: 'donacija',     label: 'Donacija',             emoji: '💎', color: 0xfee75c, reviewerRoleId: DONATION_TEAM },
+  ostalo:       { id: 'ostalo',       label: 'Saradnja / Predlog',   emoji: '🤝', color: 0x95a5a6, reviewerRoleId: SUPPORT },
 
-  // Prijave (posebna kategorija)
-  'p-admin':    { id: 'p-admin',    label: 'Admin prijava',          emoji: '🛡️', color: 0xc0392b, reviewerRoleId: VLASNIK },
-  'p-wladmin':  { id: 'p-wladmin',  label: 'WL Admin prijava',       emoji: '📥', color: 0x57f287, reviewerRoleId: ADMIN },
-  'p-promoter': { id: 'p-promoter', label: 'Promoter prijava',       emoji: '🎟️', color: 0xfee75c, reviewerRoleId: SUPPORT },
-  'p-strimer':  { id: 'p-strimer',  label: 'Strimer prijava',        emoji: '📺', color: 0xe84393, reviewerRoleId: MEDIA_TEAM },
-  'p-beta':     { id: 'p-beta',     label: 'Beta tester prijava',    emoji: '🧪', color: 0x00b894, reviewerRoleId: DEV_ROLE },
-  'p-pd':       { id: 'p-pd',       label: 'PD načelnik prijava',    emoji: '🚔', color: 0x2980b9, reviewerRoleId: VLASNIK },
+  // Prijave (posebna kategorija — admin pozicije, frakcije, organizacije)
+  'p-admin':    { id: 'p-admin',    label: 'Admin prijava',            emoji: '🛡️', color: 0xc0392b, reviewerRoleId: VLASNIK },
+  'p-promoter': { id: 'p-promoter', label: 'Promoter prijava',         emoji: '🎟️', color: 0xfee75c, reviewerRoleId: SUPPORT },
+  'p-strimer':  { id: 'p-strimer',  label: 'Strimer prijava',          emoji: '📺', color: 0xe84393, reviewerRoleId: MEDIA_TEAM },
+  'p-beta':     { id: 'p-beta',     label: 'Beta tester prijava',      emoji: '🧪', color: 0x00b894, reviewerRoleId: DEV_ROLE },
+  'p-pd':       { id: 'p-pd',       label: 'PD načelnik prijava',      emoji: '🚔', color: 0x2980b9, reviewerRoleId: VLASNIK },
   'p-bolnica':  { id: 'p-bolnica',  label: 'Bolnica direktor prijava', emoji: '🏥', color: 0xed4245, reviewerRoleId: VLASNIK },
-  'p-event':    { id: 'p-event',    label: 'Event tim prijava',      emoji: '🎪', color: 0x2ecc71, reviewerRoleId: EVENT_TEAM },
-  'p-mafija':   { id: 'p-mafija',   label: 'Mafija/Kartel lider',    emoji: '🏴', color: 0x8e44ad, reviewerRoleId: SUVLASNIK },
+  'p-event':    { id: 'p-event',    label: 'Event tim prijava',        emoji: '🎪', color: 0x2ecc71, reviewerRoleId: EVENT_TEAM },
+  'p-mafija':   { id: 'p-mafija',   label: 'Mafija/Kartel lider',      emoji: '🏴', color: 0x8e44ad, reviewerRoleId: SUVLASNIK },
 };
 
 export async function openTicketModal(interaction: ButtonInteraction, catId: string) {
