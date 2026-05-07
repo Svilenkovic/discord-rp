@@ -66,6 +66,3 @@ discord-rp/
 - Pre push-a: `git status` da `.env` nije među promenama.
 - Rotiraj token u Developer Portal-u ako sumnjaš na curenje.
 
-## Skill
-
-Patterni i recepti: `~/.claude/skills/discord-bot-discordjs/SKILL.md`.
